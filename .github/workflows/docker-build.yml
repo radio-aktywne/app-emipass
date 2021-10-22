@@ -8,6 +8,7 @@ on:
     # trigger only on changes to the following files
     paths:
       - "emipass/src/**"
+      - "emipass/package*.json"
       - "Dockerfile"
       - ".github/workflows/docker-build.yml"
   pull_request:
@@ -17,6 +18,7 @@ on:
     # trigger only on changes to the following files
     paths:
       - "emipass/src/**"
+      - "emipass/package*.json"
       - "Dockerfile"
       - ".github/workflows/docker-build.yml"
 
