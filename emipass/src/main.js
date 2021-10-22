@@ -11,7 +11,7 @@ const wss = new WebSocketServer({ port: sourcePort }, () => {
 
 wss.on('connection', (ws, req) => {
 
-    const title = req.url.replace("/", "") || "Unknown";
+    const title = decodeURI(req.url).replace("/", "") || "Unknown";
 
     const ffmpeg = child_process.spawn('ffmpeg', [
         '-i', '-',
