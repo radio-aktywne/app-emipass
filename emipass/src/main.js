@@ -9,11 +9,15 @@ const wss = new WebSocketServer({ port: sourcePort }, () => {
     console.log(`Listening on port ${sourcePort}`)
 });
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
+
+    const title = req.url.replace("/", "") || "Unknown";
+
     const ffmpeg = child_process.spawn('ffmpeg', [
         '-i', '-',
         '-acodec', 'libopus',
         '-f', 'ogg',
+        '-metadata', `title=${title}`,
         `srt://${targetHost}:${targetPort}`
     ]);
 
