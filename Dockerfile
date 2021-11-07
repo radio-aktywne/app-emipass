@@ -19,5 +19,6 @@ ENV NODE_ENV=production \
     EMIPASS_TARGET_PORT=9000
 
 EXPOSE 10000
+EXPOSE 10001-10099/udp
 
 ENTRYPOINT ["dumb-init", "/emipass/src/start.sh", "-p", "10000"]

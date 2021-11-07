@@ -5,6 +5,6 @@
   "main": "src/main.js",
   "type": "module",
   "dependencies": {
-    "ws": "^8.2"
+    "@geckos.io/server": "^2.1"
   }
 }

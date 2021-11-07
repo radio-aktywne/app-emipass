@@ -1,29 +1,28 @@
 import child_process from 'child_process';
-import { WebSocketServer } from 'ws';
+import geckos from '@geckos.io/server';
 
 const sourcePort = process.env.EMIPASS_SOURCE_PORT || 10000;
+const minSourceDataPort = process.env.EMIPASS_MIN_SOURCE_DATA_PORT || 10001;
+const maxSourceDataPort = process.env.EMIPASS_MAX_SOURCE_DATA_PORT || 10099;
 const targetHost = process.env.EMIPASS_TARGET_HOST || 'localhost';
 const targetPort = process.env.EMIPASS_TARGET_PORT || 9000;
 
-const wss = new WebSocketServer({ port: sourcePort }, () => {
-    console.log(`Listening on port ${sourcePort}`)
-});
+const io = geckos({ portRange: { min: minSourceDataPort, max: maxSourceDataPort } });
 
-wss.on('connection', (ws, req) => {
+io.listen(sourcePort);
 
-    const title = decodeURI(req.url).replace("/", "") || "Unknown";
+io.onConnection(channel => {
 
     const ffmpeg = child_process.spawn('ffmpeg', [
         '-i', '-',
         '-acodec', 'libopus',
         '-f', 'ogg',
-        '-metadata', `title=${title}`,
         `srt://${targetHost}:${targetPort}`
     ]);
 
     ffmpeg.on('close', (code, signal) => {
         console.log('FFmpeg child process closed, code ' + code + ', signal ' + signal);
-        ws.terminate();
+        channel.close();
     });
 
     ffmpeg.stdin.on('error', (e) => {
@@ -34,11 +33,11 @@ wss.on('connection', (ws, req) => {
         console.log('FFmpeg STDERR:', data.toString());
     });
 
-    ws.on('message', (msg) => {
-        ffmpeg.stdin.write(msg);
+    channel.onRaw(rawMessage => {
+        ffmpeg.stdin.write(rawMessage);
     });
 
-    ws.on('close', (e) => {
+    channel.onDisconnect(() => {
         ffmpeg.kill('SIGINT');
     });
 });
