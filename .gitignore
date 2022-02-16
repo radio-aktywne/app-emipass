@@ -1,2 +1,7 @@
+.env
+
 .DS_STORE
+
+.idea/
+
 emipass/docs/site/
