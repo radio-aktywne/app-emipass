@@ -1,4 +1,4 @@
-ARG NODE_IMAGE_TAG=17.5.0-bullseye-slim
+ARG NODE_IMAGE_TAG=16.11.1-bullseye-slim
 
 FROM node:$NODE_IMAGE_TAG
 
