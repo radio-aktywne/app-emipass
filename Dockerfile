@@ -15,10 +15,12 @@ WORKDIR /emipass/src/
 COPY --chown=node:node ./emipass/src/ /emipass/src/
 
 ENV NODE_ENV=production \
+    PORT=10000 \
+    DATA_PORT=10001 \
     EMIPASS_TARGET_HOST=localhost \
     EMIPASS_TARGET_PORT=9000
 
 EXPOSE 10000
-EXPOSE 10001-10099/udp
+EXPOSE 10001/udp
 
-ENTRYPOINT ["dumb-init", "/emipass/src/start.sh", "-p", "10000"]
+ENTRYPOINT ["dumb-init", "npm", "run", "start"]
