@@ -1,4 +1,6 @@
-FROM node:16.11.1-bullseye-slim AS build
+ARG NODE_IMAGE_TAG=17.5.0-bullseye-slim
+
+FROM node:$NODE_IMAGE_TAG
 
 RUN apt-get update && apt-get -y install dumb-init ffmpeg
 
