@@ -1,14 +1,18 @@
 # emipass
 
-Emission WebSocket to SRT passthrough 💨
+Emission WebRTC to SRT passthrough 💨
 
-`emipass` is a [`Node.js`](https://nodejs.org) server that receives WebSocket audio stream
-and sends it as [`SRT`](https://www.haivision.com/products/srt-secure-reliable-transport) stream.
+`emipass` is a [`Node.js`](https://nodejs.org) server that receives WebRTC audio
+stream and sends it
+as [`SRT`](https://www.haivision.com/products/srt-secure-reliable-transport)
+stream.
 
-To start the server make sure you have [`node`](https://nodejs.org) installed, then `cd` into `src` and run:
+To start the server make sure you have [`npm`](https://www.npmjs.com)
+and [`node`](https://nodejs.org) installed, then run:
 
 ```sh
-./start.sh
+npm run start
 ```
 
-You can send your stream using WebSockets to [`ws://localhost:10000`](ws://localhost:10000) by default and send your own audio.
+You can send your stream using [`geckos.io`](https://geckosio.github.io)
+to [`localhost:10000`](localhost:10000) by default and send your own audio.

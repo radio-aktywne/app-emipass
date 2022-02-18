@@ -1,10 +1,10 @@
 {
-  "name": "emipass",
-  "version": "0.1.0",
-  "description": "Emission WebSocket to SRT passthrough 💨",
-  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/main.js"
+  },
   "type": "module",
   "dependencies": {
-    "ws": "^8.2"
+    "@geckos.io/server": "^2.1.8"
   }
 }

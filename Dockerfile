@@ -1,4 +1,4 @@
-ARG NODE_IMAGE_TAG=17.5.0-bullseye-slim
+ARG NODE_IMAGE_TAG=16.11.1-bullseye-slim
 
 FROM node:$NODE_IMAGE_TAG
 
@@ -15,9 +15,11 @@ WORKDIR /emipass/src/
 COPY --chown=node:node ./emipass/src/ /emipass/src/
 
 ENV NODE_ENV=production \
+    EMIPASS_PORT=10000 \
     EMIPASS_TARGET_HOST=localhost \
     EMIPASS_TARGET_PORT=9000
 
 EXPOSE 10000
+EXPOSE 10000/udp
 
-ENTRYPOINT ["dumb-init", "/emipass/src/start.sh", "-p", "10000"]
+ENTRYPOINT ["dumb-init", "npm", "run", "start"]

@@ -1,44 +1,63 @@
-import child_process from 'child_process';
-import { WebSocketServer } from 'ws';
+import WRTCServer from "./wrtc.js";
+import SRTStream from "./srt.js";
 
-const sourcePort = process.env.EMIPASS_SOURCE_PORT || 10000;
-const targetHost = process.env.EMIPASS_TARGET_HOST || 'localhost';
+const sourcePort = process.env.EMIPASS_PORT || 10000;
+const targetHost = process.env.EMIPASS_TARGET_HOST || "localhost";
 const targetPort = process.env.EMIPASS_TARGET_PORT || 9000;
 
-const wss = new WebSocketServer({ port: sourcePort }, () => {
-    console.log(`Listening on port ${sourcePort}`)
+const server = new WRTCServer(sourcePort);
+
+server.onConnection((channel) => {
+  console.log(`Channel ${channel.id}: Connected.`);
+
+  let title = undefined;
+  let stream = undefined;
+
+  const startStream = () => {
+    if (stream !== undefined) return;
+    stream = new SRTStream(targetHost, targetPort, title);
+    stream.onError((error) => console.log("Stream STDIN Error", error));
+    stream.onData((data) => console.log("Stream STDERR:", data.toString()));
+    stream.onExit((code, signal) => {
+      console.log("Stream closed, code " + code + ", signal " + signal);
+      stream = undefined;
+    });
+    stream.start();
+  };
+
+  const stopStream = () => {
+    if (stream === undefined) return;
+    stream.stop();
+    stream = undefined;
+  };
+
+  const setStreamTitle = (t) => (title = t);
+
+  const writeStream = (data) => {
+    if (stream !== undefined) stream.write(data);
+  };
+
+  channel.on("start", () => {
+    console.log(`Channel ${channel.id}: Start.`);
+    startStream();
+  });
+
+  channel.on("stop", () => {
+    console.log(`Channel ${channel.id}: Stop.`);
+    stopStream();
+  });
+
+  channel.on("title", (t) => {
+    console.log(`Channel ${channel.id}: Title: "${t}".`);
+    setStreamTitle(t);
+  });
+
+  channel.onRaw(writeStream);
+
+  channel.onDisconnect(() => {
+    console.log(`Channel ${channel.id}: Disconnected.`);
+    stopStream();
+  });
 });
 
-wss.on('connection', (ws, req) => {
-
-    const title = decodeURI(req.url).replace("/", "") || "Unknown";
-
-    const ffmpeg = child_process.spawn('ffmpeg', [
-        '-i', '-',
-        '-acodec', 'libopus',
-        '-f', 'ogg',
-        '-metadata', `title=${title}`,
-        `srt://${targetHost}:${targetPort}`
-    ]);
-
-    ffmpeg.on('close', (code, signal) => {
-        console.log('FFmpeg child process closed, code ' + code + ', signal ' + signal);
-        ws.terminate();
-    });
-
-    ffmpeg.stdin.on('error', (e) => {
-        console.log('FFmpeg STDIN Error', e);
-    });
-
-    ffmpeg.stderr.on('data', (data) => {
-        console.log('FFmpeg STDERR:', data.toString());
-    });
-
-    ws.on('message', (msg) => {
-        ffmpeg.stdin.write(msg);
-    });
-
-    ws.on('close', (e) => {
-        ffmpeg.kill('SIGINT');
-    });
-});
+server.start();
