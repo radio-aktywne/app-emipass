@@ -7,11 +7,11 @@ and [`node`](https://nodejs.org) installed, then run:
 npm run start
 ```
 
-You can send your stream using WebSockets
-to [`ws://localhost:10000`](ws://localhost:10000) by default and send your own
-audio.
+You can send your stream using [`geckos.io`](https://geckosio.github.io)
+to [`localhost:10000`](localhost:10000) by default and send your own audio.
 
-If you want to specify the title of your stream then you can do that by adding
-path prefix with your title to the connection URL. For example if `emipass` is
-running on `localhost` on port `10000` and you want to name your stream `live`,
-then you should connect to `ws://localhost:10000/live`.
+You can start and stop the stream by emitting `start` and `stop` events. After
+the stream started, use raw messages to emit data chunks.
+
+You can also specify the title of the stream (before it starts) by
+emitting `title` event and sending the title as data.
