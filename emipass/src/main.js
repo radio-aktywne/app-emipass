@@ -4,8 +4,9 @@ import SRTStream from "./srt.js";
 const sourcePort = process.env.EMIPASS_PORT || 10000;
 const targetHost = process.env.EMIPASS_TARGET_HOST || "localhost";
 const targetPort = process.env.EMIPASS_TARGET_PORT || 9000;
+const useStun = process.env.EMIPASS_USE_STUN;
 
-const server = new WRTCServer(sourcePort);
+const server = new WRTCServer(sourcePort, useStun);
 
 server.onConnection((channel) => {
   console.log(`Channel ${channel.id}: Connected.`);
