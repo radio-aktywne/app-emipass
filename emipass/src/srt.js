@@ -1,20 +1,19 @@
 import child_process from "child_process";
 
 export default class SRTStream {
-  static DEFAULT_TITLE = "Unknown";
   static DEFAULT_CODEC = "libopus";
   static DEFAULT_FORMAT = "ogg";
 
-  constructor(
+  constructor({
     host,
     port,
-    title = SRTStream.DEFAULT_TITLE,
+    password = undefined,
     codec = SRTStream.DEFAULT_CODEC,
-    format = SRTStream.DEFAULT_FORMAT
-  ) {
+    format = SRTStream.DEFAULT_FORMAT,
+  }) {
     this.host = host;
     this.port = port;
-    this.title = title;
+    this.password = password;
     this.codec = codec;
     this.format = format;
     this.ffmpeg = undefined;
@@ -24,19 +23,28 @@ export default class SRTStream {
   errorCallback = (error) => {};
   dataCallback = (data) => {};
 
-  start() {
-    if (this.ffmpeg !== undefined) return;
-    this.ffmpeg = child_process.spawn("ffmpeg", [
-      "-i",
-      "-",
+  ffmpegArgs() {
+    const input = ["-i", "-"];
+    const outputOptions = [
       "-acodec",
       this.codec,
       "-f",
       this.format,
-      "-metadata",
-      `title=${this.title}`,
+    ];
+    const passwordOptions = this.password
+      ? ["-passphrase", this.password, "-pbkeylen", this.password.length]
+      : [];
+    const output = [
+      ...outputOptions,
+      ...passwordOptions,
       `srt://${this.host}:${this.port}`,
-    ]);
+    ];
+    return [...input, ...output];
+  }
+
+  start() {
+    if (this.ffmpeg !== undefined) return;
+    this.ffmpeg = child_process.spawn("ffmpeg", this.ffmpegArgs());
     this.ffmpeg.stderr.on("data", (data) => this.dataCallback(data));
     this.ffmpeg.stdin.on("error", (error) => this.errorCallback(error));
     this.ffmpeg.on("exit", (code, signal) => {
