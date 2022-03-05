@@ -18,12 +18,15 @@ const server = new WRTCServer(
 server.onConnection((channel) => {
   console.log(`Channel ${channel.id}: Connected.`);
 
-  let title = undefined;
   let stream = undefined;
 
-  const startStream = () => {
+  const startStream = (password) => {
     if (stream !== undefined) return;
-    stream = new SRTStream(targetHost, targetPort, title);
+    stream = new SRTStream({
+      host: targetHost,
+      port: targetPort,
+      password: password
+    });
     stream.onError((error) => console.log("Stream STDIN Error", error));
     stream.onData((data) => console.log("Stream STDERR:", data.toString()));
     stream.onExit((code, signal) => {
@@ -39,25 +42,18 @@ server.onConnection((channel) => {
     stream = undefined;
   };
 
-  const setStreamTitle = (t) => (title = t);
-
   const writeStream = (data) => {
     if (stream !== undefined) stream.write(data);
   };
 
-  channel.on("start", () => {
+  channel.on("start", (password) => {
     console.log(`Channel ${channel.id}: Start.`);
-    startStream();
+    startStream(password);
   });
 
   channel.on("stop", () => {
     console.log(`Channel ${channel.id}: Stop.`);
     stopStream();
-  });
-
-  channel.on("title", (t) => {
-    console.log(`Channel ${channel.id}: Title: "${t}".`);
-    setStreamTitle(t);
   });
 
   channel.onRaw(writeStream);
