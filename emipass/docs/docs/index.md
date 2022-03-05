@@ -15,4 +15,4 @@ npm run start
 ```
 
 You can send your stream using [`geckos.io`](https://geckosio.github.io)
-to [`localhost:10000`](localhost:10000) by default and send your own audio.
+to [`localhost:11000`](localhost:11000) by default and send your own audio.
