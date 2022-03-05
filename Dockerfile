@@ -15,11 +15,13 @@ WORKDIR /emipass/src/
 COPY --chown=node:node ./emipass/src/ /emipass/src/
 
 ENV NODE_ENV=production \
-    EMIPASS_PORT=10000 \
+    EMIPASS_PORT=11000 \
+    EMIPASS_MIN_DATA_PORT=0 \
+    EMIPASS_MAX_DATA_PORT=65535 \
     EMIPASS_TARGET_HOST=localhost \
-    EMIPASS_TARGET_PORT=9000
+    EMIPASS_TARGET_PORT=10000
 
-EXPOSE 10000
-EXPOSE 10000/udp
+EXPOSE 11000
+EXPOSE 0-65535/udp
 
 ENTRYPOINT ["dumb-init", "npm", "run", "start"]
