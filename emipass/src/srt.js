@@ -24,7 +24,7 @@ export default class SRTStream {
   dataCallback = (data) => {};
 
   ffmpegArgs() {
-    const input = ["-i", "-"];
+    const input = ["-re", "-i", "-"];
     const outputOptions = [
       "-acodec",
       this.codec,
