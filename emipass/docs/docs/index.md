@@ -1,6 +1,6 @@
 # emipass
 
-Emission WebRTC to SRT passthrough 💨
+emission webrtc to srt passthrough 💨
 
 `emipass` is a [`Node.js`](https://nodejs.org) server that receives WebRTC audio
 stream and sends it
