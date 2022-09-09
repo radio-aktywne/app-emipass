@@ -2,7 +2,7 @@ import child_process from "child_process";
 
 export default class SRTStream {
   static DEFAULT_CODEC = "libopus";
-  static DEFAULT_FORMAT = "ogg";
+  static DEFAULT_FORMAT = "opus";
 
   constructor({
     host,
@@ -25,12 +25,7 @@ export default class SRTStream {
 
   ffmpegArgs() {
     const input = ["-re", "-i", "-"];
-    const outputOptions = [
-      "-acodec",
-      this.codec,
-      "-f",
-      this.format,
-    ];
+    const outputOptions = ["-acodec", this.codec, "-f", this.format];
     const passwordOptions = this.password
       ? ["-passphrase", this.password, "-pbkeylen", this.password.length]
       : [];
