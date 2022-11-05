@@ -4,8 +4,8 @@
 
 emission webrtc to srt passthrough 💨
 
-[![Testing docker build](https://github.com/radio-aktywne/emipass/actions/workflows/docker-build.yml/badge.svg)](https://github.com/radio-aktywne/emipass/actions/workflows/docker-build.yml)
-[![Deploying docs](https://github.com/radio-aktywne/emipass/actions/workflows/docs.yml/badge.svg)](https://github.com/radio-aktywne/emipass/actions/workflows/docs.yml)
+[![Build](https://github.com/radio-aktywne/emipass/actions/workflows/build.yaml/badge.svg)](https://github.com/radio-aktywne/emipass/actions/workflows/build.yaml)
+[![Docs](https://github.com/radio-aktywne/emipass/actions/workflows/docs.yaml/badge.svg)](https://github.com/radio-aktywne/emipass/actions/workflows/docs.yaml)
 
 </div>
 

@@ -4,8 +4,8 @@
 
 emission webrtc to srt passthrough 💨
 
-[![Testing docker build](https://github.com/radio-aktywne/emipass/actions/workflows/docker-build.yml/badge.svg)](https://github.com/radio-aktywne/emipass/actions/workflows/docker-build.yml)
-[![Deploying docs](https://github.com/radio-aktywne/emipass/actions/workflows/docs.yml/badge.svg)](https://github.com/radio-aktywne/emipass/actions/workflows/docs.yml)
+[![Build](https://github.com/radio-aktywne/emipass/actions/workflows/build.yaml/badge.svg)](https://github.com/radio-aktywne/emipass/actions/workflows/build.yaml)
+[![Docs](https://github.com/radio-aktywne/emipass/actions/workflows/docs.yaml/badge.svg)](https://github.com/radio-aktywne/emipass/actions/workflows/docs.yaml)
 
 </div>
 
@@ -13,8 +13,9 @@ emission webrtc to srt passthrough 💨
 
 This `README` provides info about the development process.
 
-For more info about `emipass` itself see `emipass/README.md`
-or [docs](https://radio-aktywne.github.io/emipass).
+For more info about `emipass` itself see
+[package `README`](emipass/README.md) or
+[docs](https://radio-aktywne.github.io/emipass).
 
 ## Quickstart
 
@@ -35,18 +36,18 @@ in `emipass/src` and `emipass/docs` respectively.
 
 ## Continuous Integration
 
-When you push changes to remote, different Github Actions run to ensure project
+When you push changes to remote, different GitHub Actions run to ensure project
 consistency. There are defined workflows for:
 
-- deploying docs to Github Pages
+- deploying docs to GitHub Pages
 - testing Docker builds
 - drafting release notes
-- uploading Docker images to Github registry
+- uploading Docker images to GitHub registry
 
 For more info see the files in `.github/workflows` directory and `Actions` tab
-on Github.
+on GitHub.
 
-Generally if you see a red mark next to your commit on Github or a failing
+Generally if you see a red mark next to your commit on GitHub or a failing
 status on badges in `README` it means the commit broke something (or workflows
 themselves are broken).
 
@@ -56,10 +57,10 @@ Every time you merge a pull request into main, a draft release is automatically
 updated, adding the pull request to changelog. Changes can be categorized by
 using labels. You can configure that in `.github/release-drafter.yml` file.
 
-Every time you publish a release, the Docker image is uploaded to Github
+Every time you publish a release, the Docker image is uploaded to GitHub
 registry with version taken from release tag.
 
-## Bulding docs
+## Building docs
 
 We are using [`mkdocs`](https://www.mkdocs.org)
 with [`material`](https://squidfunk.github.io/mkdocs-material) for building the
