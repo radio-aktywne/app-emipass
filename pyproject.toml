@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "emipass"
+version = "0.1.0"
+description = "WebRTC to SRT passthrough 💨"
+authors = ["radio-aktywne <it@radioaktywne.pl>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+# Pydantic is used to define data models
+pydantic = "^2.6"
+pydantic-settings = "^2.2"
+# OmegaConf is used to load configuration
+omegaconf = "^2.3"
+# Typer and Rich are used to build CLIs
+typer = { version = "^0.9", extras = ["all"] }
+rich = "^13.7"
+# Litestar and Uvicorn are used to build async APIs
+litestar = "^2.6"
+uvicorn = { version = "^0.28", extras = ["standard"] }
+# Streaming utilities
+pystreams = { git = "https://github.com/radio-aktywne/package-pystreams.git", tag = "0.7.0" }
+# Locking utilities
+pylocks = { git = "https://github.com/radio-aktywne/package-pylocks.git", tag = "0.2.0" }
+# Storage utilities
+pystores = { git = "https://github.com/radio-aktywne/package-pystores.git", tag = "0.3.0" }
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.1"
+# Asyncio support for pytest
+pytest-asyncio = "^0.23"
+
+[tool.poetry.scripts]
+# Register CLI
+emipass = "emipass.__main__:cli"
+
+# See: https://python-poetry.org/docs/pyproject/#poetry-and-pep-517
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

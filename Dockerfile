@@ -1,27 +1,70 @@
-ARG NODE_IMAGE_TAG=16.11.1-bullseye-slim
+# Use generic base image with Nix installed
+FROM nixos/nix:2.20.5 AS env
 
-FROM node:$NODE_IMAGE_TAG
+# Configure Nix
+RUN echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
 
-RUN apt-get update && apt-get -y install dumb-init ffmpeg
+# Set working directory to something other than root
+WORKDIR /env/
 
-WORKDIR /emipass/
-COPY ./emipass/package*.json ./
+# Copy Nix files
+COPY Cargo.lock flake.lock *.nix ./
 
-RUN npm ci --only=production
+# Copy env script
+COPY scripts/env.sh scripts/env.sh
 
-USER node
-WORKDIR /emipass/src/
+# Build runtime shell closure and activation script
+RUN \
+    # Mount cached store paths
+    --mount=type=cache,target=/nix-store-cache/ \
+    # Mount Nix evaluation cache
+    --mount=type=cache,target=/root/.cache/nix/ \
+    ./scripts/env.sh runtime build/ /nix-store-cache/
 
-COPY --chown=node:node ./emipass/src/ /emipass/src/
+# Ubuntu is probably the safest choice for a runtime container right now
+FROM ubuntu:23.10
 
-ENV NODE_ENV=production \
-    EMIPASS_PORT=11000 \
-    EMIPASS_MIN_DATA_PORT=0 \
-    EMIPASS_MAX_DATA_PORT=65535 \
-    EMIPASS_TARGET_HOST=localhost \
-    EMIPASS_TARGET_PORT=10000
+# Use bash as default shell
+SHELL ["/bin/bash", "-c"]
 
-EXPOSE 11000
-EXPOSE 0-65535/udp
+# Copy runtime shell closure and activation script
+COPY --from=env /env/build/closure/ /nix/store/
+COPY --from=env /env/build/activate /env/activate
 
-ENTRYPOINT ["dumb-init", "npm", "run", "start"]
+# Set working directory to something other than root
+WORKDIR /app/
+
+# Create app user
+RUN useradd --create-home app
+
+# Setup entrypoint for RUN commands
+COPY scripts/shell.sh scripts/shell.sh
+SHELL ["/app/scripts/shell.sh"]
+
+# Copy Poetry files
+COPY poetry.lock poetry.toml pyproject.toml ./
+
+# Install dependencies only
+# hadolint ignore=SC2239
+RUN \
+    # Mount Poetry cache
+    --mount=type=cache,target=/root/.cache/pypoetry/ \
+    poetry install --no-interaction --no-root --only main
+
+# Copy source
+COPY src/ src/
+
+# Build wheel and install with pip to force non-editable install
+# See: https://github.com/python-poetry/poetry/issues/1382
+# hadolint ignore=SC2239
+RUN poetry build --no-interaction --format wheel && \
+    poetry run python -m pip install --no-deps --no-index --no-cache-dir dist/*.whl && \
+    rm -rf dist/ ./*.egg-info
+
+# Setup main entrypoint
+COPY scripts/entrypoint.sh scripts/entrypoint.sh
+ENTRYPOINT ["/app/scripts/entrypoint.sh", "poetry", "run", "emipass"]
+CMD []
+
+# Setup ownership
+RUN chown -R app: /app/
