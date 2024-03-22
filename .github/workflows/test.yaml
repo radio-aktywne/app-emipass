@@ -1,10 +1,4 @@
-name: Docs
-
-# Only one workflow can run at a time
-# If there is newer workflow in progress, cancel older ones
-concurrency:
-  group: docs
-  cancel-in-progress: true
+name: Test
 
 # Put 'on' in quotes to avoid YAML parsing error
 "on":
@@ -16,26 +10,46 @@ concurrency:
       - main
     # Run only on changes to relevant files
     paths:
-      - .github/workflows/docs.yaml
-      - docs/**
+      - .github/workflows/test.yaml
+      - src/**
+      - tests/**
+      - Cargo.lock
       - flake.lock
       - "*.nix"
+      - poetry.lock
+      - poetry.toml
+      - pyproject.toml
+      - Taskfile.dist.yaml
+  # Run also on pull requests to main branch
+  pull_request:
+    branches:
+      - main
+    # Run only on changes to relevant files
+    paths:
+      - .github/workflows/test.yaml
+      - src/**
+      - tests/**
+      - Cargo.lock
+      - flake.lock
+      - "*.nix"
+      - poetry.lock
+      - poetry.toml
+      - pyproject.toml
       - Taskfile.dist.yaml
 
 jobs:
-  build:
-    name: Build docs
+  test:
+    name: Test
     # Pin version of Ubuntu to avoid breaking changes
     runs-on: ubuntu-22.04
     # Use reasonable timeout to avoid stuck workflows
-    timeout-minutes: 10
+    timeout-minutes: 30
     env:
       NIX_CACHE_DIR: /home/runner/.nixcache/
+      POETRY_CACHE_DIR: /home/runner/.poetrycache/
     permissions:
       # Needed to checkout code
       contents: read
-      # Needed to upload page artifact
-      pages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.1
@@ -44,12 +58,12 @@ jobs:
         id: cache-nix
         with:
           path: ${{ env.NIX_CACHE_DIR }}
-          key: docs-nix
-      - name: Setup docs modules cache
+          key: test-nix
+      - name: Setup Poetry cache
         uses: actions/cache@v4.0.1
         with:
-          path: docs/node_modules/
-          key: docs-modules
+          path: ${{ env.POETRY_CACHE_DIR }}
+          key: test-poetry
       - name: Install Nix
         uses: cachix/install-nix-action@v26
         with:
@@ -62,25 +76,17 @@ jobs:
           nix-store
           --import
           < ${{ env.NIX_CACHE_DIR }}/archive.nar
-      - name: Build docs
+      - name: Run tests
+        env:
+          POETRY_CACHE_DIR: ${{ env.POETRY_CACHE_DIR }}
         run: >
           nix
           develop
-          ./#docs
+          ./#test
           --command
           --
           task
-          docs
-          --
-          build
-          --out-dir
-          build/
-      - name: Setup Pages
-        uses: actions/configure-pages@v4.0.0
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3.0.1
-        with:
-          path: docs/build/
+          test
       # See: https://github.com/cachix/install-nix-action/issues/56
       - name: Export Nix store cache
         if: "!cancelled()"
@@ -92,24 +98,3 @@ jobs:
           nix-store
           --export $(find /nix/store/ -maxdepth 1 -name '*-*')
           > ${{ env.NIX_CACHE_DIR }}/archive.nar
-  deploy:
-    name: Deploy docs
-    # Run only if build job succeeded
-    needs: build
-    # Pin version of Ubuntu to avoid breaking changes
-    runs-on: ubuntu-22.04
-    # Use reasonable timeout to avoid stuck workflows
-    timeout-minutes: 10
-    # Use Pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      # Needed to to deploy to Pages
-      pages: write
-      # Also needed to deploy to Pages
-      id-token: write
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4.0.4

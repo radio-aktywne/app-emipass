@@ -1,0 +1,14 @@
+services:
+  emipass:
+    build:
+      context: ./
+      network: host
+    environment:
+      - "EMIPASS__SERVER__HOST=${EMIPASS__SERVER__HOST:-0.0.0.0}"
+      - "EMIPASS__SERVER__PORT=${EMIPASS__SERVER__PORT:-11000}"
+      - "EMIPASS__STREAMER__HOST=${EMIPASS__STREAMER__HOST:-0.0.0.0}"
+      - "EMIPASS__STREAMER__PORTS=${EMIPASS__STREAMER__PORTS:-11001}"
+      - "EMIPASS__STREAMER__STUN__HOST=${EMIPASS__STREAMER__STUN__HOST:-stun.l.google.com}"
+      - "EMIPASS__STREAMER__STUN__PORT=${EMIPASS__STREAMER__STUN__PORT:-19302}"
+      - "EMIPASS__STREAMER__TIMEOUT=${EMIPASS__STREAMER__TIMEOUT:-PT1M}"
+    network_mode: host
