@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "emipass"
-version = "0.1.0"
+version = "0.2.0"
 description = "WebRTC to SRT passthrough 💨"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
 
