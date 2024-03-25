@@ -1,3 +1,5 @@
+from socket import gethostbyname
+
 from pystreams.gstreamer import GStreamerNode, GStreamerStreamMetadata
 from pystreams.process import ProcessBasedStreamFactory, ProcessBasedStreamMetadata
 from pystreams.stream import Stream
@@ -16,10 +18,12 @@ class StreamRunner:
         """Builds an input node."""
 
         return GStreamerNode(
-            element="whipserversrc",
+            element="customwhipserversrc",
             properties={
-                "signaller::host-addr": f"http://{self._config.streamer.host}:{port}",
-                "stun-server": f"stun://{stun.host}:{stun.port}",
+                "address": f"http://{self._config.streamer.whip.host}:{port}",
+                "stun": f"stun://{stun.host}:{stun.port}",
+                "min": self._config.streamer.rtp.min,
+                "max": self._config.streamer.rtp.max,
             },
         )
 
@@ -55,7 +59,7 @@ class StreamRunner:
     def _build_output_node(self, srt: SRTServer) -> GStreamerNode:
         """Builds an output node."""
 
-        properties = {"uri": f"srt://{srt.host}:{srt.port}"}
+        properties = {"uri": f"srt://{gethostbyname(srt.host)}:{srt.port}"}
 
         if srt.password is not None:
             properties["passphrase"] = srt.password

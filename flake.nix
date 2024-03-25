@@ -36,7 +36,7 @@
         ...
       }: let
         node = pkgs.nodejs;
-        python = pkgs.python311;
+        python = pkgs.python311.withPackages (ps: [ps.gst-python]);
         nil = pkgs.nil;
         task = pkgs.go-task;
         coreutils = pkgs.coreutils;
@@ -95,6 +95,13 @@
               libnice
             ];
 
+            # Can't use PYTHONPATH directly because Poetry overrides it
+            EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
+
+            # These are needed for custom GStreamer plugins
+            GI_TYPELIB_PATH = "${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
+            GST_PLUGIN_PATH = "${python}/lib/gstreamer-1.0:plugins";
+
             shellHook = ''
               export TMPDIR=/tmp
             '';
@@ -133,6 +140,13 @@
               tini
               su-exec
             ];
+
+            # Can't use PYTHONPATH directly because Poetry overrides it
+            EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
+
+            # These are needed for custom GStreamer plugins
+            GI_TYPELIB_PATH = "${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
+            GST_PLUGIN_PATH = "${python}/lib/gstreamer-1.0:plugins";
 
             shellHook = ''
               export TMPDIR=/tmp
@@ -185,6 +199,13 @@
               gstreamer-plugins-rs
               libnice
             ];
+
+            # Can't use PYTHONPATH directly because Poetry overrides it
+            EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
+
+            # These are needed for custom GStreamer plugins
+            GI_TYPELIB_PATH = "${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
+            GST_PLUGIN_PATH = "${python}/lib/gstreamer-1.0:plugins";
 
             shellHook = ''
               export TMPDIR=/tmp
