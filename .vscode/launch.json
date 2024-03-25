@@ -6,7 +6,8 @@
       "type": "python",
       "request": "launch",
       "module": "emipass",
-      "justMyCode": false
+      "justMyCode": false,
+      "envFile": ".env"
     }
   ]
 }

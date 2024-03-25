@@ -201,6 +201,10 @@ tasks:
       - >
         poetry
         run
+        --
+        dotenv
+        run
+        --
         pytest
         {{ .CLI_ARGS }}
   run:
@@ -211,6 +215,10 @@ tasks:
       - >
         poetry
         run
+        --
+        dotenv
+        run
+        --
         emipass
         {{ .CLI_ARGS }}
   docker:

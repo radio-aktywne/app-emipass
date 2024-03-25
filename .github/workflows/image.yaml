@@ -11,9 +11,11 @@ name: Image
     # Run only on changes to relevant files
     paths:
       - .github/workflows/image.yaml
+      - plugins/**
       - scripts/**
       - src/**
       - .dockerignore
+      - .env
       - Cargo.lock
       - Dockerfile
       - flake.lock
@@ -28,9 +30,11 @@ name: Image
     # Run only on changes to relevant files
     paths:
       - .github/workflows/image.yaml
+      - plugins/**
       - scripts/**
       - src/**
       - .dockerignore
+      - .env
       - Cargo.lock
       - Dockerfile
       - flake.lock

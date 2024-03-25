@@ -23,6 +23,8 @@ pystreams = { git = "https://github.com/radio-aktywne/package-pystreams.git", ta
 pylocks = { git = "https://github.com/radio-aktywne/package-pylocks.git", tag = "0.2.0" }
 # Storage utilities
 pystores = { git = "https://github.com/radio-aktywne/package-pystores.git", tag = "0.3.0" }
+# Environment variables loader
+python-dotenv = "^1.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.1"

@@ -11,8 +11,10 @@ name: Test
     # Run only on changes to relevant files
     paths:
       - .github/workflows/test.yaml
+      - plugins/**
       - src/**
       - tests/**
+      - .env
       - Cargo.lock
       - flake.lock
       - "*.nix"
@@ -27,8 +29,10 @@ name: Test
     # Run only on changes to relevant files
     paths:
       - .github/workflows/test.yaml
+      - plugins/**
       - src/**
       - tests/**
+      - .env
       - Cargo.lock
       - flake.lock
       - "*.nix"

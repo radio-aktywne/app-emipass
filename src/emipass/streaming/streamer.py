@@ -31,7 +31,7 @@ class Streamer:
 
         async with self._lock:
             used = await self._store.get()
-            available = self._config.streamer.ports - used
+            available = self._config.streamer.whip.ports - used
 
             if not available:
                 raise NoPortsAvailableError()
