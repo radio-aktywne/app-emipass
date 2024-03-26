@@ -66,11 +66,18 @@ class CustomWhipServerSrc(Gst.Bin):
         maximum=65535,
     )
     def min(self) -> int:
+        if self._agent is not None:
+            self._min = self._agent.get_property("min-rtp-port")
+
         return self._min
 
     @min.setter
     def min(self, value: int) -> None:
-        self._min = value
+        if self._agent is not None:
+            self._agent.set_property("min-rtp-port", value)
+            self._min = self._agent.get_property("min-rtp-port")
+        else:
+            self._min = value
 
     @GObject.Property(
         type=int,
@@ -80,11 +87,18 @@ class CustomWhipServerSrc(Gst.Bin):
         maximum=65535,
     )
     def max(self) -> int:
+        if self._agent is not None:
+            self._max = self._agent.get_property("max-rtp-port")
+
         return self._max
 
     @max.setter
     def max(self, value: int) -> None:
-        self._max = value
+        if self._agent is not None:
+            self._agent.set_property("max-rtp-port", value)
+            self._max = self._agent.get_property("max-rtp-port")
+        else:
+            self._max = value
 
     def _on_pad_added(
         self, element: Gst.Element, pad: Gst.Pad, *args, **kwargs
