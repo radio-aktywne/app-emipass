@@ -61,8 +61,8 @@ COPY plugins/ plugins/
 # See: https://github.com/python-poetry/poetry/issues/1382
 # hadolint ignore=SC2239
 RUN poetry build --no-interaction --format wheel && \
-    poetry run python -m pip install --no-deps --no-index --no-cache-dir dist/*.whl && \
-    rm -rf dist/ ./*.egg-info
+    poetry run -- python -m pip install --no-deps --no-index --no-cache-dir dist/*.whl && \
+    rm --recursive --force dist/ ./*.egg-info
 
 # Copy env file
 COPY .env .env
@@ -73,4 +73,4 @@ ENTRYPOINT ["/app/scripts/entrypoint.sh", "poetry", "run", "--", "dotenv", "run"
 CMD []
 
 # Setup ownership
-RUN chown -R app: /app/
+RUN chown --recursive app: ./
