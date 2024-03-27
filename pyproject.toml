@@ -18,11 +18,11 @@ rich = "^13.7"
 litestar = "^2.6"
 uvicorn = { version = "^0.28", extras = ["standard"] }
 # Streaming utilities
-pystreams = { git = "https://github.com/radio-aktywne/package-pystreams.git", tag = "0.7.0" }
+pystreams = { git = "https://github.com/radio-aktywne/package-pystreams.git", tag = "0.8.0" }
 # Locking utilities
-pylocks = { git = "https://github.com/radio-aktywne/package-pylocks.git", tag = "0.2.0" }
+pylocks = { git = "https://github.com/radio-aktywne/package-pylocks.git", tag = "0.3.0" }
 # Storage utilities
-pystores = { git = "https://github.com/radio-aktywne/package-pystores.git", tag = "0.3.0" }
+pystores = { git = "https://github.com/radio-aktywne/package-pystores.git", tag = "0.4.0" }
 # Environment variables loader
 python-dotenv = "^1.0"
 
