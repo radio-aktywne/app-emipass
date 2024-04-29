@@ -20,10 +20,10 @@ class StreamRunner:
         return GStreamerNode(
             element="customwhipserversrc",
             properties={
-                "address": f"http://{self._config.streamer.whip.host}:{port}",
+                "address": f"http://{self._config.server.host}:{port}",
                 "stun": f"stun://{stun.host}:{stun.port}",
-                "min": self._config.streamer.rtp.min,
-                "max": self._config.streamer.rtp.max,
+                "min": self._config.server.ports.rtp.min,
+                "max": self._config.server.ports.rtp.max,
             },
         )
 

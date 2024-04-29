@@ -24,5 +24,5 @@ class Server:
         uvicorn.run(
             self._app,
             host=config.host,
-            port=config.port,
+            port=config.ports.http,
         )
