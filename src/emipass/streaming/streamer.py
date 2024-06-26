@@ -6,7 +6,14 @@ from pystreams.stream import Stream
 
 from emipass.config.models import Config
 from emipass.streaming.errors import NoPortsAvailableError
-from emipass.streaming.models import Format, Request, Response, SRTServer, STUNServer
+from emipass.streaming.models import (
+    Codec,
+    Format,
+    Request,
+    Response,
+    SRTServer,
+    STUNServer,
+)
 from emipass.streaming.runner import StreamRunner
 
 
@@ -62,6 +69,7 @@ class Streamer:
         self,
         port: int,
         stun: STUNServer,
+        codec: Codec,
         format: Format,
         srt: SRTServer,
     ) -> None:
@@ -71,6 +79,7 @@ class Streamer:
         stream = await runner.run(
             port=port,
             stun=stun,
+            codec=codec,
             format=format,
             srt=srt,
         )
@@ -84,7 +93,7 @@ class Streamer:
         stun = request.stun or self._get_default_stun()
 
         try:
-            await self._run(port, stun, request.format, request.srt)
+            await self._run(port, stun, request.codec, request.format, request.srt)
 
             return Response(port=port, stun=stun)
         except Exception:

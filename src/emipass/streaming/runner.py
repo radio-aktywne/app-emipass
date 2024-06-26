@@ -5,7 +5,7 @@ from pystreams.process import ProcessBasedStreamFactory, ProcessBasedStreamMetad
 from pystreams.stream import Stream
 
 from emipass.config.models import Config
-from emipass.streaming.models import Format, SRTServer, STUNServer
+from emipass.streaming.models import Codec, Format, SRTServer, STUNServer
 
 
 class StreamRunner:
@@ -14,8 +14,14 @@ class StreamRunner:
     def __init__(self, config: Config) -> None:
         self._config = config
 
-    def _build_input_node(self, port: int, stun: STUNServer) -> GStreamerNode:
+    def _build_input_node(
+        self, port: int, stun: STUNServer, codec: Codec
+    ) -> GStreamerNode:
         """Builds an input node."""
+
+        codecs = {
+            Codec.OPUS: "OPUS",
+        }
 
         return GStreamerNode(
             element="customwhipserversrc",
@@ -24,6 +30,7 @@ class StreamRunner:
                 "stun": f"stun://{stun.host}:{stun.port}",
                 "min": self._config.server.ports.rtp.min,
                 "max": self._config.server.ports.rtp.max,
+                "codec": codecs[codec],
             },
         )
 
@@ -37,17 +44,19 @@ class StreamRunner:
             },
         )
 
-    def _build_converter_node(self) -> GStreamerNode:
-        """Builds a converter node."""
+    def _build_extractor_node(self, codec: Codec) -> GStreamerNode:
+        """Builds an extractor node."""
 
-        return GStreamerNode(element="audioconvert")
+        match codec:
+            case Codec.OPUS:
+                return GStreamerNode(element="rtpopusdepay")
 
-    def _build_encoder_node(self, format: Format) -> GStreamerNode:
-        """Builds an encoder node."""
+    def _build_parser_node(self, codec: Codec) -> GStreamerNode:
+        """Builds a parser node."""
 
-        match format:
-            case Format.OGG:
-                return GStreamerNode(element="opusenc")
+        match codec:
+            case Codec.OPUS:
+                return GStreamerNode(element="opusparse")
 
     def _build_muxer_node(self, format: Format) -> GStreamerNode:
         """Builds a muxer node."""
@@ -70,6 +79,7 @@ class StreamRunner:
         self,
         port: int,
         stun: STUNServer,
+        codec: Codec,
         format: Format,
         srt: SRTServer,
     ) -> GStreamerStreamMetadata:
@@ -77,10 +87,10 @@ class StreamRunner:
 
         return GStreamerStreamMetadata(
             nodes=[
-                self._build_input_node(port, stun),
+                self._build_input_node(port, stun, codec),
                 self._build_watchdog_node(),
-                self._build_converter_node(),
-                self._build_encoder_node(format),
+                self._build_extractor_node(codec),
+                self._build_parser_node(codec),
                 self._build_muxer_node(format),
                 self._build_output_node(srt),
             ]
@@ -95,10 +105,11 @@ class StreamRunner:
         self,
         port: int,
         stun: STUNServer,
+        codec: Codec,
         format: Format,
         srt: SRTServer,
     ) -> Stream:
         """Run the stream."""
 
-        metadata = self._build_stream_metadata(port, stun, format, srt)
+        metadata = self._build_stream_metadata(port, stun, codec, format, srt)
         return await self._run_stream(metadata)

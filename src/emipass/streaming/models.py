@@ -5,6 +5,10 @@ from pydantic import Field
 from emipass.models.base import SerializableModel
 
 
+class Codec(StrEnum):
+    OPUS = "opus"
+
+
 class Format(StrEnum):
     OGG = "ogg"
 
@@ -56,10 +60,15 @@ class Request(SerializableModel):
         title="Request.STUN",
         description="STUN server to use.",
     )
+    codec: Codec = Field(
+        Codec.OPUS,
+        title="Request.Codec",
+        description="Codec of the media in the stream.",
+    )
     format: Format = Field(
         Format.OGG,
         title="Request.Format",
-        description="Format of the output audio.",
+        description="Format of the media in the stream.",
     )
     srt: SRTServer = Field(
         ...,
