@@ -1,4 +1,10 @@
-from gi.repository import GObject, Gst
+import gi
+
+gi.require_version("GObject", "2.0")
+gi.require_version("Gst", "1.0")
+gi.require_version("GstWebRTC", "1.0")
+
+from gi.repository import GObject, Gst, GstWebRTC  # noqa: E402
 
 
 class CustomWhipServerSrc(Gst.Bin):
@@ -9,30 +15,47 @@ class CustomWhipServerSrc(Gst.Bin):
         "radio-aktywne",
     )
 
-    __gsttemplates__ = Gst.PadTemplate.new(
-        "audio_%u",
-        Gst.PadDirection.SRC,
-        Gst.PadPresence.SOMETIMES,
-        Gst.Caps.from_string("audio/x-raw(ANY); application/x-rtp; audio/x-opus"),
-    )
+    _min: int | None
+    _max: int | None
+    _whip: Gst.Element
+    _signaller: GObject.GInterface
+    _webrtcbin: Gst.Element | None
+    _agent: GstWebRTC.WebRTCICE | None
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._min = None
         self._max = None
-
-        self._whip = Gst.ElementFactory.make("whipserversrc", "whip")
-        self._signaller = self._whip.get_property("signaller")
-
-        # Needed due to https://gitlab.gnome.org/GNOME/pygobject/-/issues/605
+        self._whip = self._setup_whip()
+        self._signaller = self._setup_signaller()
+        self._webrtcbin = None
         self._agent = None
 
-        self.add(self._whip)
+    def _setup_whip(self) -> Gst.Element:
+        whip = Gst.ElementFactory.make_with_properties(
+            "whipserversrc",
+            ["audio-codecs", "video-codecs"],
+            [Gst.ValueArray(["OPUS"]), Gst.ValueArray([])],
+        )
 
-        self._whip.connect("pad-added", self._on_pad_added)
-        self._whip.connect("pad-removed", self._on_pad_removed)
-        self._signaller.connect("webrtcbin-ready", self._on_webrtcbin_ready)
+        self.add(whip)
+
+        templates = whip.get_pad_template_list()
+        for template in templates:
+            self.add_pad_template(template)
+
+        whip.connect("pad-added", self._on_pad_added)
+        whip.connect("pad-removed", self._on_pad_removed)
+
+        return whip
+
+    def _setup_signaller(self) -> Gst.Element:
+        signaller = self._whip.get_property("signaller")
+
+        signaller.connect("webrtcbin-ready", self._on_webrtcbin_ready)
+
+        return signaller
 
     @GObject.Property(
         type=str,
@@ -100,12 +123,26 @@ class CustomWhipServerSrc(Gst.Bin):
         else:
             self._max = value
 
+    @GObject.Property(
+        type=str,
+        nick="Codec",
+        blurb="Codec to use",
+    )
+    def codec(self) -> str:
+        codecs = self._whip.get_property("audio-codecs")
+        return codecs[0]
+
+    @codec.setter
+    def codec(self, value: str) -> None:
+        self._whip.set_property("audio-codecs", Gst.ValueArray([value]))
+
     def _on_pad_added(
         self, element: Gst.Element, pad: Gst.Pad, *args, **kwargs
     ) -> None:
         """Handle the pad-added signal from the whipserversrc element."""
 
-        ghost_pad = Gst.GhostPad.new(pad.get_name(), pad)
+        name = pad.get_name()
+        ghost_pad = Gst.GhostPad.new(name, pad)
         self.add_pad(ghost_pad)
 
     def _on_pad_removed(
@@ -113,20 +150,22 @@ class CustomWhipServerSrc(Gst.Bin):
     ) -> None:
         """Handle the pad-removed signal from the whipserversrc element."""
 
-        ghost_pad = self.get_static_pad(pad.get_name())
+        name = pad.get_name()
+        ghost_pad = self.get_static_pad(name)
         self.remove_pad(ghost_pad)
 
     def _on_webrtcbin_ready(
         self,
-        self_obj: Gst.Object,
+        signaller: Gst.Object,
         peer_id: str,
         webrtcbin: Gst.Element,
         *args,
-        **kwargs
+        **kwargs,
     ) -> None:
         """Handle the webrtcbin-ready signal from the signaller."""
 
-        self._agent = webrtcbin.get_property("ice-agent")
+        self._webrtcbin = webrtcbin
+        self._agent = self._webrtcbin.get_property("ice-agent")
 
         if self._min is not None:
             self._agent.set_property("min-rtp-port", self._min)
