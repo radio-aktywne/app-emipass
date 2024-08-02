@@ -1,8 +1,5 @@
+from dataclasses import dataclass
 from enum import StrEnum
-
-from pydantic import Field
-
-from emipass.models.base import SerializableModel
 
 
 class Codec(StrEnum):
@@ -13,82 +10,36 @@ class Format(StrEnum):
     OGG = "ogg"
 
 
-class SRTServer(SerializableModel):
+@dataclass(kw_only=True)
+class SRTServer:
     """SRT server configuration."""
 
-    host: str = Field(
-        ...,
-        title="SRTServer.Host",
-        description="Host of the SRT server.",
-    )
-    port: int = Field(
-        ...,
-        ge=1,
-        le=65535,
-        title="SRTServer.Port",
-        description="Port of the SRT server.",
-    )
-    password: str | None = Field(
-        None,
-        title="SRTServer.Password",
-        description="Password to use for the SRT stream.",
-    )
+    host: str
+    port: int
+    password: str | None
 
 
-class STUNServer(SerializableModel):
+@dataclass(kw_only=True)
+class STUNServer:
     """STUN server configuration."""
 
-    host: str = Field(
-        ...,
-        title="STUNServer.Host",
-        description="Host of the STUN server.",
-    )
-    port: int = Field(
-        ...,
-        ge=1,
-        le=65535,
-        title="STUNServer.Port",
-        description="Port of the STUN server.",
-    )
+    host: str
+    port: int
 
 
-class Request(SerializableModel):
+@dataclass(kw_only=True)
+class StreamRequest:
     """Request for a stream."""
 
-    stun: STUNServer | None = Field(
-        None,
-        title="Request.STUN",
-        description="STUN server to use.",
-    )
-    codec: Codec = Field(
-        Codec.OPUS,
-        title="Request.Codec",
-        description="Codec of the media in the stream.",
-    )
-    format: Format = Field(
-        Format.OGG,
-        title="Request.Format",
-        description="Format of the media in the stream.",
-    )
-    srt: SRTServer = Field(
-        ...,
-        title="Request.SRT",
-        description="SRT server to send the stream to.",
-    )
+    stun: STUNServer | None
+    codec: Codec
+    format: Format
+    srt: SRTServer
 
 
-class Response(SerializableModel):
+@dataclass(kw_only=True)
+class StreamResponse:
     """Response to a streaming request."""
 
-    port: int = Field(
-        ...,
-        ge=1,
-        le=65535,
-        title="Response.Port",
-        description="Port to use to connect to the stream.",
-    )
-    stun: STUNServer = Field(
-        ...,
-        title="Response.STUN",
-        description="STUN server to use.",
-    )
+    port: int
+    stun: STUNServer

@@ -1,7 +1,7 @@
 import logging
+from collections.abc import AsyncGenerator, Callable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from importlib import metadata
-from typing import AsyncGenerator, Callable
 
 from litestar import Litestar, Router
 from litestar.contrib.pydantic import PydanticPlugin
@@ -54,11 +54,12 @@ class AppBuilder:
         )
 
     def _build_initial_state(self) -> State:
+        config = self._config
         streamer = self._build_streamer()
 
         return State(
             {
-                "config": self._config,
+                "config": config,
                 "streamer": streamer,
             }
         )
@@ -66,7 +67,7 @@ class AppBuilder:
     @asynccontextmanager
     async def _suppress_httpx_logging_lifespan(
         self, app: Litestar
-    ) -> AsyncGenerator[None, None]:
+    ) -> AsyncGenerator[None]:
         logger = logging.getLogger("httpx")
         disabled = logger.disabled
         logger.disabled = True

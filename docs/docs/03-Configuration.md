@@ -22,6 +22,9 @@ You can configure the app at runtime using various environment variables:
 - `EMIPASS__SERVER__PORTS__RTP__MAX` -
   maximum port to select from when listening for RTP connections
   (default: `11002`)
+- `EMIPASS__SERVER__TRUSTED` -
+  trusted IP addresses
+  (default: `*`)
 - `EMIPASS__STREAMER__STUN__HOST` -
   host of the STUN server
   (default: `stun.l.google.com`)

@@ -16,7 +16,6 @@ name: Image
       - src/**
       - .dockerignore
       - .env
-      - Cargo.lock
       - Dockerfile
       - flake.lock
       - "*.nix"
@@ -35,7 +34,6 @@ name: Image
       - src/**
       - .dockerignore
       - .env
-      - Cargo.lock
       - Dockerfile
       - flake.lock
       - "*.nix"

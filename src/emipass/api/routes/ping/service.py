@@ -1,10 +1,10 @@
-from emipass.api.routes.ping.models import PingResponse
+from emipass.api.routes.ping import models as m
 
 
 class Service:
     """Service for the ping endpoint."""
 
-    async def ping(self) -> PingResponse:
+    async def ping(self, request: m.PingRequest) -> m.PingResponse:
         """Do nothing."""
 
-        return None
+        return m.PingResponse()

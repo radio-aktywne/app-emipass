@@ -79,6 +79,11 @@ class ServerConfig(BaseModel):
         title="Ports",
         description="Configuration for the server ports.",
     )
+    trusted: str | list[str] | None = Field(
+        "*",
+        title="Trusted",
+        description="Trusted IP addresses.",
+    )
 
 
 class STUNConfig(BaseModel):

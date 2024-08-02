@@ -5,15 +5,8 @@ from pystores.base import Store
 from pystreams.stream import Stream
 
 from emipass.config.models import Config
-from emipass.streaming.errors import NoPortsAvailableError
-from emipass.streaming.models import (
-    Codec,
-    Format,
-    Request,
-    Response,
-    SRTServer,
-    STUNServer,
-)
+from emipass.streaming import errors as e
+from emipass.streaming import models as m
 from emipass.streaming.runner import StreamRunner
 
 
@@ -25,10 +18,10 @@ class Streamer:
         self._store = store
         self._lock = lock
 
-    def _get_default_stun(self) -> STUNServer:
+    def _get_default_stun(self) -> m.STUNServer:
         """Gets the default STUN server to use."""
 
-        return STUNServer(
+        return m.STUNServer(
             host=self._config.streamer.stun.host,
             port=self._config.streamer.stun.port,
         )
@@ -41,7 +34,7 @@ class Streamer:
             available = self._config.server.ports.whip - used
 
             if not available:
-                raise NoPortsAvailableError()
+                raise e.NoPortsAvailableError()
 
             port = available.pop()
 
@@ -68,10 +61,10 @@ class Streamer:
     async def _run(
         self,
         port: int,
-        stun: STUNServer,
-        codec: Codec,
-        format: Format,
-        srt: SRTServer,
+        stun: m.STUNServer,
+        codec: m.Codec,
+        format: m.Format,
+        srt: m.SRTServer,
     ) -> None:
         """Runs a stream."""
 
@@ -86,7 +79,7 @@ class Streamer:
 
         asyncio.create_task(self._watch_stream(stream, port))
 
-    async def stream(self, request: Request) -> Response:
+    async def stream(self, request: m.StreamRequest) -> m.StreamResponse:
         """Starts a stream."""
 
         port = await self._reserve_port()
@@ -94,8 +87,11 @@ class Streamer:
 
         try:
             await self._run(port, stun, request.codec, request.format, request.srt)
-
-            return Response(port=port, stun=stun)
         except Exception:
             await self._free_port(port)
             raise
+
+        return m.StreamResponse(
+            port=port,
+            stun=stun,
+        )

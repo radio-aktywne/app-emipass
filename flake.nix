@@ -36,7 +36,7 @@
         ...
       }: let
         node = pkgs.nodejs;
-        python = pkgs.python311.withPackages (ps: [ps.gst-python]);
+        python = pkgs.python312.withPackages (ps: [ps.gst-python]);
         nil = pkgs.nil;
         task = pkgs.go-task;
         coreutils = pkgs.coreutils;
@@ -44,13 +44,13 @@
         poetry = pkgs.poetry;
         cacert = pkgs.cacert;
         copier = pkgs.copier;
+        glib = pkgs.glib;
         gstreamer = pkgs.gst_all_1.gstreamer;
         gstreamer-plugins-base = pkgs.gst_all_1.gst-plugins-base;
         gstreamer-plugins-good = pkgs.gst_all_1.gst-plugins-good;
         gstreamer-plugins-bad = pkgs.gst_all_1.gst-plugins-bad;
         gstreamer-plugins-ugly = pkgs.gst_all_1.gst-plugins-ugly;
-        # Build gstreamer-plugins-rs manually to use the latest version
-        gstreamer-plugins-rs = pkgs.callPackage ./gstreamer-plugins-rs.nix {};
+        gstreamer-plugins-rs = pkgs.gst_all_1.gst-plugins-rs;
         libnice = pkgs.libnice;
         tini = pkgs.tini;
         su-exec = pkgs.su-exec;
@@ -86,6 +86,7 @@
               poetry
               cacert
               copier
+              glib
               gstreamer
               gstreamer-plugins-base
               gstreamer-plugins-good
@@ -99,7 +100,7 @@
             EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
 
             # These are needed for custom GStreamer plugins
-            GI_TYPELIB_PATH = "${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
+            GI_TYPELIB_PATH = "${glib.out}/lib/girepository-1.0:${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
             GST_PLUGIN_PATH = "${python}/lib/gstreamer-1.0:plugins";
 
             shellHook = ''
@@ -130,6 +131,7 @@
               python
               poetry
               cacert
+              glib
               gstreamer
               gstreamer-plugins-base
               gstreamer-plugins-good
@@ -145,7 +147,7 @@
             EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
 
             # These are needed for custom GStreamer plugins
-            GI_TYPELIB_PATH = "${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
+            GI_TYPELIB_PATH = "${glib.out}/lib/girepository-1.0:${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
             GST_PLUGIN_PATH = "${python}/lib/gstreamer-1.0:plugins";
 
             shellHook = ''
@@ -191,6 +193,7 @@
               coreutils
               poetry
               cacert
+              glib
               gstreamer
               gstreamer-plugins-base
               gstreamer-plugins-good
@@ -204,7 +207,7 @@
             EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
 
             # These are needed for custom GStreamer plugins
-            GI_TYPELIB_PATH = "${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
+            GI_TYPELIB_PATH = "${glib.out}/lib/girepository-1.0:${gstreamer.out}/lib/girepository-1.0:${gstreamer-plugins-base}/lib/girepository-1.0:${gstreamer-plugins-good}/lib/girepository-1.0:${gstreamer-plugins-bad}/lib/girepository-1.0:${gstreamer-plugins-ugly}/lib/girepository-1.0:${gstreamer-plugins-rs}/lib/girepository-1.0:${libnice.out}/lib/girepository-1.0";
             GST_PLUGIN_PATH = "${python}/lib/gstreamer-1.0:plugins";
 
             shellHook = ''
