@@ -15,7 +15,6 @@ name: Test
       - src/**
       - tests/**
       - .env
-      - Cargo.lock
       - flake.lock
       - "*.nix"
       - poetry.lock
@@ -33,7 +32,6 @@ name: Test
       - src/**
       - tests/**
       - .env
-      - Cargo.lock
       - flake.lock
       - "*.nix"
       - poetry.lock

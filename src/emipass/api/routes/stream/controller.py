@@ -1,11 +1,11 @@
 from litestar import Controller as BaseController
-from litestar import post
+from litestar import handlers
 from litestar.di import Provide
 from litestar.response import Response
 
 from emipass.api.exceptions import ConflictException
-from emipass.api.routes.stream.errors import StreamerBusyError
-from emipass.api.routes.stream.models import StreamRequest, StreamResponse
+from emipass.api.routes.stream import errors as e
+from emipass.api.routes.stream import models as m
 from emipass.api.routes.stream.service import Service
 from emipass.state import State
 
@@ -27,17 +27,23 @@ class Controller(BaseController):
 
     dependencies = DependenciesBuilder().build()
 
-    @post(
+    @handlers.post(
         summary="Request a stream",
         description="Request a stream.",
         raises=[ConflictException],
     )
     async def stream(
-        self, data: StreamRequest, service: Service
-    ) -> Response[StreamResponse]:
+        self, data: m.StreamRequestData, service: Service
+    ) -> Response[m.StreamResponseData]:
         try:
-            response = await service.stream(data)
-        except StreamerBusyError as error:
-            raise ConflictException(extra=error.message) from error
+            response = await service.stream(
+                m.StreamRequest(
+                    data=data,
+                )
+            )
+        except e.StreamerBusyError as ex:
+            raise ConflictException(extra=ex.message) from ex
 
-        return Response(response)
+        resdata = response.data
+
+        return Response(resdata)

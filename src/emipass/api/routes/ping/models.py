@@ -1,3 +1,15 @@
-from typing import TypeAlias
+from dataclasses import dataclass
 
-PingResponse: TypeAlias = None
+
+@dataclass(kw_only=True)
+class PingRequest:
+    """Request to ping."""
+
+    pass
+
+
+@dataclass(kw_only=True)
+class PingResponse:
+    """Response for ping."""
+
+    pass

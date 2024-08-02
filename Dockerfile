@@ -8,7 +8,7 @@ RUN echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
 WORKDIR /env/
 
 # Copy Nix files
-COPY Cargo.lock flake.lock *.nix ./
+COPY flake.lock *.nix ./
 
 # Copy env script
 COPY scripts/env.sh scripts/env.sh
