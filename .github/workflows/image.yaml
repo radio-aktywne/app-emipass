@@ -15,7 +15,7 @@ name: Image
       - scripts/**
       - src/**
       - .dockerignore
-      - .env
+      - .env.python
       - Dockerfile
       - flake.lock
       - "*.nix"
@@ -33,7 +33,7 @@ name: Image
       - scripts/**
       - src/**
       - .dockerignore
-      - .env
+      - .env.python
       - Dockerfile
       - flake.lock
       - "*.nix"

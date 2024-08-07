@@ -13,4 +13,5 @@ services:
       - "EMIPASS__STREAMER__STUN__HOST=${EMIPASS__STREAMER__STUN__HOST:-stun.l.google.com}"
       - "EMIPASS__STREAMER__STUN__PORT=${EMIPASS__STREAMER__STUN__PORT:-19302}"
       - "EMIPASS__STREAMER__TIMEOUT=${EMIPASS__STREAMER__TIMEOUT:-PT1M}"
+      - "EMIPASS__DEBUG=${EMIPASS__DEBUG:-false}"
     network_mode: host

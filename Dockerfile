@@ -64,12 +64,12 @@ RUN poetry build --no-interaction --format wheel && \
     poetry run -- python -m pip install --no-deps --no-index --no-cache-dir dist/*.whl && \
     rm --recursive --force dist/ ./*.egg-info
 
-# Copy env file
-COPY .env .env
+# Copy file with environment variables for Python
+COPY .env.python .env.python
 
 # Setup main entrypoint
 COPY scripts/entrypoint.sh scripts/entrypoint.sh
-ENTRYPOINT ["/app/scripts/entrypoint.sh", "poetry", "run", "--", "dotenv", "run", "--", "emipass"]
+ENTRYPOINT ["/app/scripts/entrypoint.sh", "poetry", "run", "--", "dotenv", "--file", ".env.python", "run", "--", "emipass"]
 CMD []
 
 # Setup ownership

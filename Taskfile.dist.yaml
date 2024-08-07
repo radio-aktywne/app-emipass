@@ -203,6 +203,8 @@ tasks:
         run
         --
         dotenv
+        --file
+        .env.python
         run
         --
         pytest
@@ -217,6 +219,8 @@ tasks:
         run
         --
         dotenv
+        --file
+        .env.python
         run
         --
         emipass

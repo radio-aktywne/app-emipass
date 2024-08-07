@@ -5,22 +5,20 @@ from pystreams.process import ProcessBasedStreamFactory, ProcessBasedStreamMetad
 from pystreams.stream import Stream
 
 from emipass.config.models import Config
-from emipass.streaming.models import Codec, Format, SRTServer, STUNServer
+from emipass.services.streaming import models as m
 
 
-class StreamRunner:
+class Runner:
     """Utility class for building and running a stream."""
 
     def __init__(self, config: Config) -> None:
         self._config = config
 
     def _build_input_node(
-        self, port: int, stun: STUNServer, codec: Codec
+        self, port: int, codec: m.Codec, stun: m.STUNServer
     ) -> GStreamerNode:
-        """Builds an input node."""
-
         codecs = {
-            Codec.OPUS: "OPUS",
+            m.Codec.OPUS: "OPUS",
         }
 
         return GStreamerNode(
@@ -35,8 +33,6 @@ class StreamRunner:
         )
 
     def _build_watchdog_node(self) -> GStreamerNode:
-        """Builds a watchdog node."""
-
         return GStreamerNode(
             element="watchdog",
             properties={
@@ -44,72 +40,69 @@ class StreamRunner:
             },
         )
 
-    def _build_extractor_node(self, codec: Codec) -> GStreamerNode:
-        """Builds an extractor node."""
-
+    def _build_extractor_node(self, codec: m.Codec) -> GStreamerNode:
         match codec:
-            case Codec.OPUS:
-                return GStreamerNode(element="rtpopusdepay")
+            case m.Codec.OPUS:
+                return GStreamerNode(
+                    element="rtpopusdepay",
+                )
 
-    def _build_parser_node(self, codec: Codec) -> GStreamerNode:
-        """Builds a parser node."""
-
+    def _build_parser_node(self, codec: m.Codec) -> GStreamerNode:
         match codec:
-            case Codec.OPUS:
-                return GStreamerNode(element="opusparse")
+            case m.Codec.OPUS:
+                return GStreamerNode(
+                    element="opusparse",
+                )
 
-    def _build_muxer_node(self, format: Format) -> GStreamerNode:
-        """Builds a muxer node."""
-
+    def _build_muxer_node(self, format: m.Format) -> GStreamerNode:
         match format:
-            case Format.OGG:
-                return GStreamerNode(element="oggmux")
+            case m.Format.OGG:
+                return GStreamerNode(
+                    element="oggmux",
+                )
 
-    def _build_output_node(self, srt: SRTServer) -> GStreamerNode:
-        """Builds an output node."""
-
+    def _build_output_node(self, srt: m.SRTServer) -> GStreamerNode:
         properties = {"uri": f"srt://{gethostbyname(srt.host)}:{srt.port}"}
 
         if srt.password is not None:
             properties["passphrase"] = srt.password
 
-        return GStreamerNode(element="srtsink", properties=properties)
+        return GStreamerNode(
+            element="srtsink",
+            properties=properties,
+        )
 
     def _build_stream_metadata(
         self,
         port: int,
-        stun: STUNServer,
-        codec: Codec,
-        format: Format,
-        srt: SRTServer,
+        codec: m.Codec,
+        format: m.Format,
+        srt: m.SRTServer,
+        stun: m.STUNServer,
     ) -> GStreamerStreamMetadata:
-        """Builds stream metadata."""
-
         return GStreamerStreamMetadata(
             nodes=[
-                self._build_input_node(port, stun, codec),
+                self._build_input_node(port, codec, stun),
                 self._build_watchdog_node(),
                 self._build_extractor_node(codec),
                 self._build_parser_node(codec),
                 self._build_muxer_node(format),
                 self._build_output_node(srt),
-            ]
+            ],
         )
 
     async def _run_stream(self, metadata: ProcessBasedStreamMetadata) -> Stream:
-        """Run the stream with the given metadata."""
-
         return await ProcessBasedStreamFactory().create(metadata)
 
     async def run(
         self,
         port: int,
-        stun: STUNServer,
-        codec: Codec,
-        format: Format,
-        srt: SRTServer,
+        codec: m.Codec,
+        format: m.Format,
+        srt: m.SRTServer,
+        stun: m.STUNServer,
     ) -> Stream:
         """Run the stream."""
 
-        metadata = self._build_stream_metadata(port, stun, codec, format, srt)
+        metadata = self._build_stream_metadata(port, codec, format, srt, stun)
         return await self._run_stream(metadata)

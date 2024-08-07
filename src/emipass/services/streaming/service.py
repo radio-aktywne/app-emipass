@@ -5,13 +5,13 @@ from pystores.base import Store
 from pystreams.stream import Stream
 
 from emipass.config.models import Config
-from emipass.streaming import errors as e
-from emipass.streaming import models as m
-from emipass.streaming.runner import StreamRunner
+from emipass.services.streaming import errors as e
+from emipass.services.streaming import models as m
+from emipass.services.streaming.runner import Runner
 
 
-class Streamer:
-    """Manages streams."""
+class StreamingService:
+    """Service to manage streaming."""
 
     def __init__(self, config: Config, store: Store[set[int]], lock: Lock) -> None:
         self._config = config
@@ -19,16 +19,12 @@ class Streamer:
         self._lock = lock
 
     def _get_default_stun(self) -> m.STUNServer:
-        """Gets the default STUN server to use."""
-
         return m.STUNServer(
             host=self._config.streamer.stun.host,
             port=self._config.streamer.stun.port,
         )
 
     async def _reserve_port(self) -> int:
-        """Reserves a port for a stream."""
-
         async with self._lock:
             used = await self._store.get()
             available = self._config.server.ports.whip - used
@@ -43,16 +39,12 @@ class Streamer:
         return port
 
     async def _free_port(self, port: int) -> None:
-        """Marks a port as free."""
-
         async with self._lock:
             used = await self._store.get()
             used.remove(port)
             await self._store.set(used)
 
     async def _watch_stream(self, stream: Stream, port: int) -> None:
-        """Watches a stream and frees the port when it ends."""
-
         try:
             await stream.wait()
         finally:
@@ -61,32 +53,35 @@ class Streamer:
     async def _run(
         self,
         port: int,
-        stun: m.STUNServer,
         codec: m.Codec,
         format: m.Format,
         srt: m.SRTServer,
+        stun: m.STUNServer,
     ) -> None:
-        """Runs a stream."""
-
-        runner = StreamRunner(self._config)
+        runner = Runner(self._config)
         stream = await runner.run(
             port=port,
-            stun=stun,
             codec=codec,
             format=format,
             srt=srt,
+            stun=stun,
         )
 
         asyncio.create_task(self._watch_stream(stream, port))
 
     async def stream(self, request: m.StreamRequest) -> m.StreamResponse:
-        """Starts a stream."""
+        """Start a stream."""
+
+        codec = request.codec
+        format = request.format
+        srt = request.srt
+        stun = request.stun
 
         port = await self._reserve_port()
-        stun = request.stun or self._get_default_stun()
+        stun = stun or self._get_default_stun()
 
         try:
-            await self._run(port, stun, request.codec, request.format, request.srt)
+            await self._run(port, codec, format, srt, stun)
         except Exception:
             await self._free_port(port)
             raise
