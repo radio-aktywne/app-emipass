@@ -14,9 +14,9 @@ For example, you can use [`curl`](https://curl.se) to do that:
 
 ```sh
 curl \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{"srt": {"host": "example.com", "port": 12345}}' \
+    --request POST \
+    --header "Content-Type: application/json" \
+    --data '{"srt": {"host": "example.com", "port": 12345}}' \
     http://localhost:11000/stream
 ```
 
@@ -64,4 +64,19 @@ gst-launch-1.0 \
     ! \
     whipclientsink \
     signaller::whip-endpoint="http://localhost:11001/whip/endpoint"
+```
+
+## Ping
+
+You can check the status of the app by sending
+either a `GET` or `HEAD` request to the `/ping` endpoint.
+The app should respond with a `204 No Content` status code.
+
+For example, you can use `curl` to do that:
+
+```sh
+curl \
+    --request HEAD \
+    --head \
+    http://localhost:11000/ping
 ```

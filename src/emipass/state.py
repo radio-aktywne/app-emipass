@@ -1,16 +1,14 @@
 from litestar.datastructures import State as LitestarState
 
 from emipass.config.models import Config
-from emipass.streaming.streamer import Streamer
+from emipass.services.streaming.service import StreamingService
 
 
 class State(LitestarState):
-    """Use this class as a type hint for the state of your application.
-
-    Attributes:
-        config: Configuration for the application.
-        streamer: Streamer for managing streams.
-    """
+    """Use this class as a type hint for the state of the application."""
 
     config: Config
-    streamer: Streamer
+    """Configuration for the application."""
+
+    streaming: StreamingService
+    """Service to manage streaming."""

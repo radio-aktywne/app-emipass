@@ -7,7 +7,7 @@
       "request": "launch",
       "module": "emipass",
       "justMyCode": false,
-      "envFile": ".env"
+      "envFile": ".env.python"
     }
   ]
 }

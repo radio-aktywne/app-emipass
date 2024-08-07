@@ -34,3 +34,6 @@ You can configure the app at runtime using various environment variables:
 - `EMIPASS__STREAMER__TIMEOUT` -
   time after which a stream will be stopped if no connections are made
   (default: `PT1M`)
+- `EMIPASS__DEBUG` -
+  enable debug mode
+  (default: `false`)

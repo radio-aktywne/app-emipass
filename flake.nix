@@ -96,7 +96,6 @@
               libnice
             ];
 
-            # Can't use PYTHONPATH directly because Poetry overrides it
             EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
 
             # These are needed for custom GStreamer plugins
@@ -143,7 +142,6 @@
               su-exec
             ];
 
-            # Can't use PYTHONPATH directly because Poetry overrides it
             EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
 
             # These are needed for custom GStreamer plugins
@@ -203,7 +201,6 @@
               libnice
             ];
 
-            # Can't use PYTHONPATH directly because Poetry overrides it
             EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
 
             # These are needed for custom GStreamer plugins

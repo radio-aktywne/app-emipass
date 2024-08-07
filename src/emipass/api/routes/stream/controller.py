@@ -1,12 +1,16 @@
+from typing import Annotated
+
 from litestar import Controller as BaseController
 from litestar import handlers
 from litestar.di import Provide
+from litestar.params import Body
 from litestar.response import Response
 
 from emipass.api.exceptions import ConflictException
 from emipass.api.routes.stream import errors as e
 from emipass.api.routes.stream import models as m
 from emipass.api.routes.stream.service import Service
+from emipass.api.validator import Validator
 from emipass.state import State
 
 
@@ -14,7 +18,9 @@ class DependenciesBuilder:
     """Builder for the dependencies of the controller."""
 
     async def _build_service(self, state: State) -> Service:
-        return Service(state.streamer)
+        return Service(
+            streaming=state.streaming,
+        )
 
     def build(self) -> dict[str, Provide]:
         return {
@@ -29,21 +35,33 @@ class Controller(BaseController):
 
     @handlers.post(
         summary="Request a stream",
-        description="Request a stream.",
-        raises=[ConflictException],
+        raises=[
+            ConflictException,
+        ],
     )
     async def stream(
-        self, data: m.StreamRequestData, service: Service
+        self,
+        service: Service,
+        data: Annotated[
+            m.StreamRequestData,
+            Body(
+                description="Data for the request.",
+            ),
+        ],
     ) -> Response[m.StreamResponseData]:
+        """Request a stream."""
+
+        data = Validator[m.StreamRequestData]().object(data)
+
+        req = m.StreamRequest(
+            data=data,
+        )
+
         try:
-            response = await service.stream(
-                m.StreamRequest(
-                    data=data,
-                )
-            )
-        except e.StreamerBusyError as ex:
-            raise ConflictException(extra=ex.message) from ex
+            res = await service.stream(req)
+        except e.ServiceBusyError as ex:
+            raise ConflictException(extra=str(ex)) from ex
 
-        resdata = response.data
+        rdata = res.data
 
-        return Response(resdata)
+        return Response(rdata)

@@ -1,101 +1,66 @@
-from dataclasses import dataclass
-
 from pydantic import Field
 
-from emipass.models.base import SerializableModel
-from emipass.streaming import models as sm
+from emipass.models.base import SerializableModel, datamodel, serializable
+from emipass.services.streaming import models as sm
 
 
-class SRTServer(SerializableModel):
-    """SRT server configuration."""
+@serializable
+@datamodel
+class SRTServer(sm.SRTServer):
+    password: str | None = None
 
-    host: str = Field(
-        ...,
-        title="SRTServer.Host",
-        description="Host of the SRT server.",
-    )
-    port: int = Field(
-        ...,
-        ge=1,
-        le=65535,
-        title="SRTServer.Port",
-        description="Port of the SRT server.",
-    )
-    password: str | None = Field(
-        None,
-        title="SRTServer.Password",
-        description="Password of the SRT server.",
-    )
+    def map(self) -> sm.SRTServer:
+        return sm.SRTServer(**vars(self))
 
 
-class STUNServer(SerializableModel):
-    """STUN server configuration."""
+@serializable
+@datamodel
+class STUNServer(sm.STUNServer):
+    @staticmethod
+    def rmap(stun: sm.STUNServer) -> "STUNServer":
+        return STUNServer(**vars(stun))
 
-    host: str = Field(
-        ...,
-        title="STUNServer.Host",
-        description="Host of the STUN server.",
-    )
-    port: int = Field(
-        ...,
-        ge=1,
-        le=65535,
-        title="STUNServer.Port",
-        description="Port of the STUN server.",
-    )
+    def map(self) -> sm.STUNServer:
+        return sm.STUNServer(**vars(self))
 
 
 class StreamRequestData(SerializableModel):
     """Data for a stream request."""
 
-    stun: STUNServer | None = Field(
-        None,
-        title="StreamRequestData.STUN",
-        description="STUN server to use.",
-    )
-    codec: sm.Codec = Field(
-        sm.Codec.OPUS,
-        title="StreamRequestData.Codec",
-        description="Codec of the media in the stream.",
-    )
-    format: sm.Format = Field(
-        sm.Format.OGG,
-        title="StreamRequestData.Format",
-        description="Format of the media in the stream.",
-    )
-    srt: SRTServer = Field(
-        ...,
-        title="StreamRequestData.SRT",
-        description="SRT server to send the stream to.",
-    )
+    codec: sm.Codec = sm.Codec.OPUS
+    """Audio codec."""
+
+    format: sm.Format = sm.Format.OGG
+    """Audio format."""
+
+    srt: SRTServer
+    """SRT server configuration."""
+
+    stun: STUNServer | None = None
+    """STUN server configuration."""
 
 
 class StreamResponseData(SerializableModel):
     """Data for a stream response."""
 
-    port: int = Field(
-        ...,
-        ge=1,
-        le=65535,
-        title="StreamResponseData.Port",
-        description="Port to use to connect to the stream.",
-    )
-    stun: STUNServer = Field(
-        ...,
-        title="StreamResponseData.STUN",
-        description="STUN server to use.",
-    )
+    stun: STUNServer
+    """STUN server configuration."""
+
+    port: int = Field(..., ge=1, le=65535)
+    """Port to stream to."""
 
 
-@dataclass(kw_only=True)
+@datamodel
 class StreamRequest:
-    """Request for a stream."""
+    """Request to stream."""
 
     data: StreamRequestData
+    """Data for the request."""
 
 
-@dataclass(kw_only=True)
+@datamodel
 class StreamResponse:
-    """Response to a streaming request."""
+    """Response for stream."""
 
     data: StreamResponseData
+    """Data for the response."""
