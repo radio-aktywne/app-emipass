@@ -1,7 +1,7 @@
 [tool.poetry]
 package-mode = true
 name = "emipass"
-version = "0.6.0"
+version = "0.7.0"
 description = "WebRTC to SRT passthrough 💨"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
 
