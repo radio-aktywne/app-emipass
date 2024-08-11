@@ -51,7 +51,7 @@ class Controller(BaseController):
     ) -> Response[m.StreamResponseData]:
         """Request a stream."""
 
-        data = Validator[m.StreamRequestData]().object(data)
+        data = Validator(m.StreamRequestData).object(data)
 
         req = m.StreamRequest(
             data=data,
