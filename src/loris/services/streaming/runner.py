@@ -87,18 +87,18 @@ class Runner:
 
     def _build_metadata_node(self, request: m.StreamRequest) -> GStreamerNode:
         def escape(value: str) -> str:
-            return re.sub(r'([",=\\])', r"\\\1", value)
+            return re.sub(r'([\s",;<=>\[\\\]{}])', r"\\\1", value)
 
         return GStreamerNode(
             element="taginject",
             properties={
                 "merge-mode": "keep",
-                "tags": f'"{
-                    ",".join(
-                        f"{escape(key)}={escape(value)}"
+                "tags": f"{
+                    ','.join(
+                        f'{escape(key)}="{escape(value)}"'
                         for key, value in request.metadata.items()
                     )
-                }"',
+                }",
             }
             if request.metadata
             else None,
